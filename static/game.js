@@ -26,7 +26,7 @@ var bh = 400;
 var p = 10;
 
 // redraw on new game state
-socket.on('state', function(pieces) {
+socket.on('state', function(pieces, ball) {
   // clear canvas area
   context.clearRect(0, 0, 1200, 600);
 
@@ -55,8 +55,10 @@ socket.on('state', function(pieces) {
     }
   }
 
-  // draw circles
-  // context.fillStyle = 'green';
+  context.beginPath();
+  context.fillStyle = 'green';
+  context.arc(ball.x, ball.y, 10, 0, 2 * Math.PI);
+  context.fill()
   // pieces.forEach(function(element) {
   //   context.beginPath();
   //   context.arc(element[0], element[1], 10, 0, 2 * Math.PI);
