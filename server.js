@@ -21,20 +21,27 @@ server.listen(process.env.PORT || 5000, function() {
   console.log('Starting server on port 5000');
 });
 
-var players = {};
-var pieces = []
+var players = [];
+var pieces = [];
+var turn = 0;
 
 // Add the WebSocket handlers
 io.on('connection', function(socket) {
   socket.on('new player', function() {
-    players[socket.id] = {
-      x: 300,
-      y: 300
-    };
+    players.push(socket.id);
   });
   socket.on('clickRequest', function(x, y) {
-    io.sockets.emit('message', 'click at ' + x + ', ' + y)
-    pieces.push([x, y])
+    io.sockets.emit('message', 'click at ' + x + ', ' + y);
+    if (turn == 0 && socket.id == players[0]) {
+      io.sockets.emit('message', 'turn 0 and player 0, placing piece');
+      pieces.push([x, y]);
+      turn = 1;
+    } else if (turn == 1 && socket.id == players[1]) {
+      io.sockets.emit('message', 'turn 1 and player 1, placing piece');
+      pieces.push([x, y]);
+      turn = 0;
+    }
+    
   })
 });
 
