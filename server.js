@@ -22,29 +22,42 @@ server.listen(process.env.PORT || 5000, function() {
 });
 
 var players = [];
-var pieces = [];
+var pieces = Array(15).fill().map(() => Array(30).fill(0));
 var turn = 0;
 
 // Add the WebSocket handlers
 io.on('connection', function(socket) {
   socket.on('new player', function() {
     players.push(socket.id);
+    io.sockets.emit('state', pieces);
+    io.sockets.emit('message', pieces);
   });
   socket.on('clickRequest', function(x, y) {
     io.sockets.emit('message', 'click at ' + x + ', ' + y);
-    if (turn == 0 && socket.id == players[0]) {
+    // pieces[1][1] = 2;
+    if (turn == 0 && socket.id == players[0] && fill_square(x, y, 1)) {
       io.sockets.emit('message', 'turn 0 and player 0, placing piece');
-      pieces.push([x, y]);
+      // pieces.push([x, y]);
       turn = 1;
-    } else if (turn == 1 && socket.id == players[1]) {
+      io.sockets.emit('state', pieces);
+    } else if (turn == 1 && socket.id == players[1] && fill_square(x, y, 1)) {
       io.sockets.emit('message', 'turn 1 and player 1, placing piece');
-      pieces.push([x, y]);
+      // pieces.push([x, y]);
       turn = 0;
+      io.sockets.emit('state', pieces);
     }
-    
   })
 });
 
-setInterval(function() {
-  io.sockets.emit('state', pieces);
-}, 1000 / 60);
+function fill_square(x, y, piece) {
+  square_row = Math.trunc((y - 13) / 40);
+  square_column = Math.trunc((x - 13) / 40);
+  io.sockets.emit('message', 'row is ' + square_row + ' and column is ' + square_column);
+  if (pieces[square_row][square_column] == 0) {
+    pieces[square_row][square_column] = piece;
+    io.sockets.emit('message', pieces);
+    return true;
+  } else {
+    return false;
+  }
+}
