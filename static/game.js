@@ -3,61 +3,52 @@ socket.on('message', function(data) {
   console.log(data);
 });
 
-var movement = {
-    up: false,
-    down: false,
-    left: false,
-    right: false
-  }
-  document.addEventListener('keydown', function(event) {
-    switch (event.keyCode) {
-      case 65: // A
-        movement.left = true;
-        break;
-      case 87: // W
-        movement.up = true;
-        break;
-      case 68: // D
-        movement.right = true;
-        break;
-      case 83: // S
-        movement.down = true;
-        break;
-    }
-  });
-  document.addEventListener('keyup', function(event) {
-    switch (event.keyCode) {
-      case 65: // A
-        movement.left = false;
-        break;
-      case 87: // W
-        movement.up = false;
-        break;
-      case 68: // D
-        movement.right = false;
-        break;
-      case 83: // S
-        movement.down = false;
-        break;
-    }
-  });
 
-  socket.emit('new player');
-setInterval(function() {
-  socket.emit('movement', movement);
-}, 1000 / 60);
+// check for clicks
+document.addEventListener('click', function(event) {
+  socket.emit('clickRequest', event.clientX, event.clientY)
+})
+
+socket.emit('new player');
+
 
 var canvas = document.getElementById('canvas');
 canvas.width = 800;
 canvas.height = 600;
 var context = canvas.getContext('2d');
-socket.on('state', function(players) {
+
+// Draw board
+var bw = 400;
+// Box height
+var bh = 400;
+// Padding
+var p = 10;
+
+// redraw on new game state
+socket.on('state', function(pieces) {
+  // clear canvas area
   context.clearRect(0, 0, 800, 600);
-  context.fillStyle = 'green';
-  for (var id in players) {
-    var player = players[id];
-    context.beginPath();
-    context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-    context.fill();
+
+  // draw board
+  for (var x = 0; x <= bw; x += 40) {
+    context.moveTo(0.5 + x + p, p);
+    context.lineTo(0.5 + x + p, bh + p);
   }
+  
+  for (var x = 0; x <= bh; x += 40) {
+    context.moveTo(p, 0.5 + x + p);
+    context.lineTo(bw + p, 0.5 + x + p);
+  }
+  
+  context.strokeStyle = "black";
+  context.stroke();
+
+  // draw circles
+  context.fillStyle = 'green';
+  pieces.forEach(function(element) {
+    context.beginPath();
+    context.arc(element[0], element[1], 10, 0, 2 * Math.PI);
+    context.fill();
+  });
+  
 });
