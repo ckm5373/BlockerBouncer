@@ -29,7 +29,7 @@ let ball = {
   speed: 0, 
   x: 100, 
   y: 100, 
-  direction: 'down'
+  direction: 'right'
 } 
 
 // Add the WebSocket handlers
@@ -54,6 +54,17 @@ io.on('connection', function(socket) {
       turn = 0;
       io.sockets.emit('state', pieces, ball);
     }
+  });
+  socket.on('restart', function() {
+    pieces = Array(15).fill().map(() => Array(30).fill(0));
+    turn = 0;
+    ball = { 
+      speed: 0, 
+      x: 100, 
+      y: 100, 
+      direction: 'right'
+    } 
+    io.sockets.emit('state', pieces, ball);
   })
 });
 

@@ -9,6 +9,14 @@ document.addEventListener('click', function(event) {
   socket.emit('clickRequest', event.clientX, event.clientY)
 })
 
+document.addEventListener('keydown', function(event) {
+  switch (event.keyCode) {
+    case 82: // R
+      socket.emit('restart')
+      break;
+  }
+});
+
 socket.emit('new player');
 
 
